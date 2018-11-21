@@ -6,6 +6,13 @@
  * Time: 15:25
  */
 
+/**
+ * @param string $host the host name
+ * @param string $db the database name
+ * @param string $user username of the user
+ * @param string $pass password of the user
+ * @return PDO $pdo returns a new pdo
+ */
 function connect_db($host, $db, $user, $pass){
     $charset = 'utf8mb4';
     $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
@@ -26,6 +33,7 @@ function connect_db($host, $db, $user, $pass){
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 /**
  * Check if the route exist
  * @param string $route_uri URI to be matched
@@ -141,6 +149,7 @@ function get_error($feedback){
 
 /**
  * @param PDO $db
+ * @return number of series listed in the database
  */
 function count_series($db)
 {
@@ -150,6 +159,10 @@ function count_series($db)
     return $serie;
 }
 
+/**
+ * @param PDO $pdo
+ * @return array information of a series with a specific series id.
+ */
 function get_series($pdo){
     $stmt = $pdo->prepare('SELECT * FROM series');
     $stmt->execute();
@@ -164,7 +177,11 @@ function get_series($pdo){
     return $series_exp;
 }
 
-function get_serie_table($series){
+/**
+ * @param $series array returns an array for the body
+ * @return string with the HTML code representing the table with all the series.
+ */
+function get_series_table($series){
     $table_exp =
         '
 <table class="table table-hover">
@@ -192,7 +209,12 @@ function get_serie_table($series){
     return $table_exp;
 }
 
-function get_serie_info($pdo, $serie_id)
+/**
+ * @param PDO $pdo
+ * @param string $serie_id returns the serie_id of the serie
+ * @return array information of a series with a specific series id.
+ */
+function get_series_info($pdo, $serie_id)
 {
     $stmt = $pdo->prepare('SELECT * FROM series WHERE id = ?');
     $stmt->execute([$serie_id]);
@@ -205,6 +227,15 @@ function get_serie_info($pdo, $serie_id)
     return $serie_info_exp;
 }
 
+/**
+ * which takes the POST information and stores this in the database.
+ * Checks if all  fields are set using the PHP empty() function.
+ * The data type of the seasons input field are checked using the PHP is_numeric() function.
+ * The function checks if the name of the series is already in the database.
+ * @param PDO $pdo
+ * @param array $serie_info returns an array with the info of the serie
+ * @return array if the serie is added succesfully and if this is not the case.
+ */
 function add_series($pdo, $serie_info) {
     if (
         empty($serie_info['name']) or
@@ -261,6 +292,15 @@ field Seasons.'
         ];
     }}
 
+/**
+ * which takes the POST information, edits it and stores this in the database.
+ * Checks if all  fields are set using the PHP empty() function.
+ * The data type of the seasons input field are checked using the PHP is_numeric() function.
+ * the name check accepts the current series name but wont't accept other names that are already in the database.
+ * @param PDO $pdo
+ * @param array $serie_info returns an array with the info of the serie
+ * @return array if the serie is updated succesfully and if this is not the case.
+ */
 function update_series($pdo, $serie_info) {
     if (
         empty($serie_info['name']) or
@@ -326,9 +366,15 @@ field Seasons.'
         ];
     }}
 
+/**
+ * The function is able to delete a serie according to a given serie_id
+ * @param PDO $pdo
+ * @param string $serie_id returns the serie_id of the serie
+ * @return array if the serie is removed succesfully and if this is not the case.
+ */
 function remove_serie($pdo, $serie_id) {
     /* Get series info */
-    $serie_info = get_serie_info($pdo, $serie_id);
+    $serie_info = get_series_info($pdo, $serie_id);
     /* Delete Serie */
     $stmt = $pdo->prepare("DELETE FROM series WHERE id = ?");
     $stmt->execute([$serie_id]);

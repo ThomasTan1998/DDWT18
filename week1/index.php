@@ -11,6 +11,7 @@ include 'model.php';
 /* Connect to DB */
 $db = connect_db('localhost', 'ddwt18_week1', 'ddwt18','ddwt18');
 
+/* Changes the number of seriss in the right column */
 $number_series = count_series($db);
 
 
@@ -59,8 +60,10 @@ elseif (new_route('/DDWT18/week1/overview/', 'get')) {
     $right_column = use_template('cards');
     $page_subtitle = 'The overview of all series';
     $page_content = 'Here you find all series listed on Series Overview.';
+
+    /* get series from the database */
     $series = get_series($db);
-    $series = get_serie_table($series);
+    $series = get_series_table($series);
     $page_content = $series;
 
 
@@ -73,7 +76,7 @@ elseif (new_route('/DDWT18/week1/overview/', 'get')) {
 elseif (new_route('/DDWT18/week1/serie/', 'get')) {
     /* Get series from db */
     $serie_id = $_GET["serie_id"];
-    $serie_info = get_serie_info($db, $serie_id);
+    $serie_info = get_series_info($db, $serie_id);
     $serie_name = $serie_info['name'];
     $serie_abstract = $serie_info['abstract'];
     $nbr_seasons = $serie_info['seasons'];
@@ -131,9 +134,12 @@ elseif (new_route('/DDWT18/week1/add/', 'get')) {
 
 /* Add serie POST */
 elseif (new_route('/DDWT18/week1/add/', 'post')) {
-    /* Page info */
+
+    /* Add page to overview */
     $add_to_overview = add_series($db, $_POST);
     $error_msg = get_error($add_to_overview);
+
+    /* Page info */
     $page_title = 'Add Series';
     $breadcrumbs = get_breadcrumbs([
         'DDWT18' => na('/DDWT18/', False),
@@ -152,6 +158,8 @@ elseif (new_route('/DDWT18/week1/add/', 'post')) {
     $page_content = 'Fill in the details of you favorite series.';
     $submit_btn = "Add Series";
     $form_action = '/DDWT18/week1/add/';
+
+    /* Changes the number of the series directly when clicked on add series (right column).  */
     $number_series = count_series($db);
 
 
@@ -163,7 +171,7 @@ elseif (new_route('/DDWT18/week1/add/', 'post')) {
 elseif (new_route('/DDWT18/week1/edit/', 'get')) {
     /* Get serie info from db */
     $serie_id_edit = $_GET["serie_id"];
-    $serie_info = get_serie_info($db, $serie_id_edit);
+    $serie_info = get_series_info($db, $serie_id_edit);
     $serie_name = $serie_info['name'];
     $serie_abstract = $serie_info['abstract'];
     $nbr_seasons = $serie_info['seasons'];
@@ -195,11 +203,14 @@ elseif (new_route('/DDWT18/week1/edit/', 'get')) {
 
 /* Edit serie POST */
 elseif (new_route('/DDWT18/week1/edit/', 'post')) {
-    /* Get serie info from db */
+
+    /* update serie in database */
     $updatedatabase = update_series($db, $_POST);
     $error_msg = get_error($updatedatabase);
+
+    /* Sends serie info from db */
     $serie_id = $_POST["serie_id"];
-    $serie_info = get_serie_info($db, $serie_id);
+    $serie_info = get_series_info($db, $serie_id);
     $serie_name = $serie_info['name'];
     $serie_abstract = $serie_info['abstract'];
     $nbr_seasons = $serie_info['seasons'];
@@ -256,8 +267,10 @@ elseif (new_route('/DDWT18/week1/remove/', 'post')) {
     $page_subtitle = 'The overview of all series';
     $page_content = 'Here you find all series listed on Series Overview.';
     $series = get_series($db);
-    $series = get_serie_table($series);
+    $series = get_series_table($series);
     $page_content = $series;
+
+    /* Changes the number of the series directly when clicked on edit series (right column). */
     $number_series = count_series($db);
 
 
@@ -278,7 +291,7 @@ if (new_route('/', 'get')) {
     /* Get series from database */
     $series = get_series($db);
     /* Build series table */
-    $series = get_serie_table($series);
+    $series = get_series_table($series);
     /* Page content */
     $page_content = $series;
     /* Choose Template */

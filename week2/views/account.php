@@ -31,7 +31,6 @@
 
                     <h1><?= $page_title ?></h1>
                     <h5><?= $page_subtitle ?></h5>
-                    <p><?= $page_content ?></p>
                 </div>
 
             </div>
